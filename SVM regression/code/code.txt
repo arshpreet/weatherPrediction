@@ -1,0 +1,785 @@
+<------- CREATING THE ANOMALY MATRICES | TOTAL 21 ---------->
+
+A18=mean(mean(mum_vwind_400_n))
+S18=std(std(mum_vwind_400_n))
+
+D18p=A18+1.25*S18
+D18n=A18-1.25*S18
+
+for i = 1:4758
+for j = 1:225
+if mum_vwind_400_n(i,j)>D18p
+AM18(i,j) = +1;
+elseif mum_vwind_400_n(i,j)<D18n
+AM18(i,j) = -1;
+else
+AM18(i,j) = 0;
+end
+end
+end
+
+A19=mean(mean(mum_vwind_600_n))
+S19=std(std(mum_vwind_600_n))
+
+D19p=A19+1.25*S19
+D19n=A19-1.25*S19
+
+for i = 1:4758
+for j = 1:225
+if mum_vwind_600_n(i,j)>D19p
+AM19(i,j) = +1;
+elseif mum_vwind_600_n(i,j)<D19n
+AM19(i,j) = -1;
+else
+AM19(i,j) = 0;
+end
+end
+end
+
+A20=mean(mean(mum_vwind_850_n))
+S20=std(std(mum_vwind_850_n))
+
+D20p=A20+1.25*S20
+D20n=A20-1.25*S20
+
+for i = 1:4758
+for j = 1:225
+if mum_vwind_850_n(i,j)>D20p
+AM20(i,j) = +1;
+elseif mum_vwind_850_n(i,j)<D20n
+AM20(i,j) = -1;
+else
+AM20(i,j) = 0;
+end
+end
+end
+
+A21=mean(mean(mum_vwind_1000_n))
+S21=std(std(mum_vwind_1000_n))
+
+D21p=A21+1.25*S21
+D21n=A21-1.25*S21
+
+for i = 1:4758
+for j = 1:225
+if mum_vwind_1000_n(i,j)>D21p
+AM21(i,j) = +1;
+elseif mum_vwind_1000_n(i,j)<D21n
+AM21(i,j) = -1;
+else
+AM21(i,j) = 0;
+end
+end
+end
+
+
+<------- CONCATENATE THE ANOMALY MATRICES INTO A SINGLE MATRIX COLUMN WISE ----->
+cat(2,AM1,AM2,...,AM21)
+
+<------- CHECK TARGET RAINFALL MATRIX, IF VALUE 1, THEN FOR THE CORRESPONDING ROW IN CON_AM IF =1 THEN INC +VE FREQ, IF =-1 THEN INC -VE FREQ -------->
+
+for i=1:4725
+freqP(1,i)=0;
+end
+
+for i=1:4725
+freqN(1,i)=0;
+end
+
+for i=1:3904
+if target_rain_mum(i,1) == 1
+for j=1:4725
+if Con_AM(i,j) == 1
+freqP(1,j)=freqP(1,j)+1;
+end
+if Con_AM(i,j) == -1
+freqN(1,j)=freqN(1,j)+1;
+end
+end
+end
+end
+
+<--------- IF +VE FREQ OR -VE FREQ > THRESHOLD FREQ, THEN EXTRACT THE CORRESPONDING COL FROM CON_AM AND CREATE A NEW MATRIX ------>
+
+k=1;
+for i=1:4725
+if freqP(1,i)>40 | freqN(1,i)>40 
+for j=1:4758
+EXTMAT(j,k) = Con_AM(j,i);
+end
+k=k+1;
+end
+end
+
+<--------- FINDING THE DIFFERENCE MATRIX ----->
+
+for i = 1:4758
+
+for j = 1:225
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_om_400_n(i,j) - D1p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_om_400_n(i,j) - D1n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 226:450
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_om_600_n(i,j-225) - D2p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_om_600_n(i,j-225) - D2n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 451:675
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_om_850_n(i,j-450) - D3p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_om_850_n(i,j-450) - D3n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 676:900
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_pr_n(i,j-675) - D4p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_pr_n(i,j-675) - D4n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 901:1125
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_pr_wtr_n(i,j-900) - D5p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_pr_wtr_n(i,j-900) - D5n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 1126:1350
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_rhum_400_n(i,j-1125) - D6p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_rhum_400_n(i,j-1125) - D6n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 1351:1575
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_rhum_600_n(i,j-1350) - D7p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_rhum_600_n(i,j-1350) - D7n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 1576:1800
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_rhum_850_n(i,j-1575) - D8p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_rhum_850_n(i,j-1575) - D8n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 1801:2025
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_rhum_1000_n(i,j-1800) - D9p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_rhum_1000_n(i,j-1800) - D9n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 2026:2250
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_temp_400_n(i,j-2025) - D10p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_temp_400_n(i,j-2025) - D10n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 2251:2475
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_temp_600_n(i,j-2250) - D11p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_temp_600_n(i,j-2250) - D11n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 2476:2700
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_temp_850_n(i,j-2475) - D12p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_temp_850_n(i,j-2475) - D12n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 2701:2925
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_temp_1000_n(i,j-2700) - D13p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_temp_1000_n(i,j-2700) - D13n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 2926:3150
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_uwind_400_n(i,j-2925) - D14p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_uwind_400_n(i,j-2925) - D14n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 3151:3375
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_uwind_600_n(i,j-3150) - D15p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_uwind_600_n(i,j-3150) - D15n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 3376:3600
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_uwind_850_n(i,j-3375) - D16p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_uwind_850_n(i,j-3375) - D16n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 3601:3825
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_uwind_1000_n(i,j-3600) - D17p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_uwind_1000_n(i,j-3600) - D17n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 3826:4050
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_vwind_400_n(i,j-3825) - D18p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_vwind_400_n(i,j-3825) - D18n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 4051:4275
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_vwind_600_n(i,j-4050) - D19p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_vwind_600_n(i,j-4050) - D19n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 4276:4500
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_vwind_850_n(i,j-4275) - D20p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_vwind_850_n(i,j-4275) - D20n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+for j = 4501:4725
+if Con_AM(i,j) == 1
+DIFFMAT(i,j) = mum_vwind_1000_n(i,j-4500) - D21p;
+elseif Con_AM(i,j) == -1
+DIFFMAT(i,j) = mum_vwind_1000_n(i,j-4500) - D21n;
+else
+DIFFMAT(i,j) = 0;
+end
+end
+
+end
+
+<--------- TRAIN A SUPPORT VECTOR MACHINE REGRESSION MODEL AND TEST IT WITH THE PROVIDED RAINFALL DATA ------>
+
+for i=1:3904
+for j=1:1595
+X(i,j) = EXTMAT(i,j);
+end
+end
+
+for i=1:3904
+for j=1:1010
+T1_2(i,j) = EXTMAT2(i,j);
+end
+end
+for i=2:3905
+for j=1:1010
+T2_2(i-1,j) = EXTMAT2(i,j);
+end
+end
+for i=3:3906
+for j=1:1010
+T3_2(i-2,j) = EXTMAT2(i,j);
+end
+end
+
+T4_2 = cat(2,T1_2,T2_2,T3_2)
+
+for i = 2:3905
+Y(i-1,1) = rain_mum_1969_2007_1grid(i,1);
+end
+
+mdl = fitrsvm(X,Y)	<------ TRAINED MODEL ------->
+
+for i = 3905:4757
+for j = 1:1595
+Xp(i-3904,j) = EXTMAT(i,j);
+end
+end
+
+for i = 3905:4755
+for j = 1:1010
+Tp1_2(i-3904,j) = EXTMAT2(i,j);
+end
+end
+for i = 3906:4756
+for j = 1:1010
+Tp2_2(i-3905,j) = EXTMAT2(i,j);
+end
+end
+for i = 3907:4757
+for j = 1:1010
+Tp3_2(i-3906,j) = EXTMAT2(i,j);
+end
+end
+Tp4_2 = cat(2,Tp1_2,Tp2_2,Tp3_2);
+
+yfit = predict(mdl,Xp)	<------ PREDICTED VALUES ------>
+
+for i=3906:4758
+Yp(i-3905,1) = rain_mum_1969_2007_1grid(i,1)
+end
+
+err = immse(yfit,Yp) <----- MEAN SQUARED ERROR ------>
+
+plot(yfit,'r')
+hold on;
+plot(Yp,'g')
+
+
+<----- EXTFEAT MATRIX IS THE ONE WITH ALL THOSE COL FROM THE ORIGINAL MATRIX WHICH HAVE FREQ > THRESHOLD FREQ ------>
+
+k=1;
+for i=1:225
+if freqP(1,i)>40 | freqN(1,i)>40 
+for j=1:4758
+EXTFEAT1(j,k) = mum_om_400_n(j,i);
+end
+k=k+1;
+end
+end
+
+k=1;
+for i=226:450
+if freqP(1,i)>40 | freqN(1,i)>40 
+for j=1:4758
+EXTFEAT2(j,k) = mum_om_600_n(j,i-225);
+end
+k=k+1;
+end
+end
+
+<--------------------  CONVERT EACH OF THE 21 MATRICES[4758 X 225] INTO [15 X 15 X 4758] AND  ---------------------->
+<-------------------- ONLY THOSE BLOCKS SHOULD HAVE A VALUE WHICH ARE IN THE EXTFEAT MATRIX, REST ALL 0 ---------------------->
+
+k=1;
+for i=1:225
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE1(j,k) = mum_om_400_n(j,i);
+	end
+		else
+	for j=1:4758
+	RESHAPE1(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE1 = permute(reshape(RESHAPE1,4758,15,15),[2 3 1]);
+
+k=1;
+for i=226:450
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE2(j,k) = mum_om_600_n(j,i-225);
+	end
+		else
+	for j=1:4758
+	RESHAPE2(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE2 = permute(reshape(RESHAPE2,4758,15,15),[2 3 1]);
+
+k=1;
+for i=451:675
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE3(j,k) = mum_om_850_n(j,i-450);
+	end
+		else
+	for j=1:4758
+	RESHAPE3(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE3 = permute(reshape(RESHAPE3,4758,15,15),[2 3 1]);
+
+k=1;
+for i=676:900
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE4(j,k) = mum_pr_n(j,i-675);
+	end
+		else
+	for j=1:4758
+	RESHAPE4(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE4 = permute(reshape(RESHAPE4,4758,15,15),[2 3 1]);
+
+k=1;
+for i=901:1125
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE5(j,k) = mum_pr_wtr_n(j,i-900);
+	end
+		else
+	for j=1:4758
+	RESHAPE5(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE5 = permute(reshape(RESHAPE5,4758,15,15),[2 3 1]);
+
+k=1;
+for i=1126:1350
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE6(j,k) = mum_rhum_400_n(j,i-1125);
+	end
+		else
+	for j=1:4758
+	RESHAPE6(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE6 = permute(reshape(RESHAPE6,4758,15,15),[2 3 1]);
+
+k=1;
+for i=1351:1575
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE7(j,k) = mum_rhum_600_n(j,i-1350);
+	end
+		else
+	for j=1:4758
+	RESHAPE7(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE7 = permute(reshape(RESHAPE7,4758,15,15),[2 3 1]);
+
+k=1;
+for i=1576:1800
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE8(j,k) = mum_rhum_850_n(j,i-1575);
+	end
+		else
+	for j=1:4758
+	RESHAPE8(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE8 = permute(reshape(RESHAPE8,4758,15,15),[2 3 1]);
+
+k=1;
+for i=1801:2025
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE9(j,k) = mum_rhum_1000_n(j,i-1800);
+	end
+		else
+	for j=1:4758
+	RESHAPE9(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE9 = permute(reshape(RESHAPE9,4758,15,15),[2 3 1]);
+
+k=1;
+for i=2026:2250
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE10(j,k) = mum_temp_400_n(j,i-2025);
+	end
+		else
+	for j=1:4758
+	RESHAPE10(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE10 = permute(reshape(RESHAPE10,4758,15,15),[2 3 1]);
+
+k=1;
+for i=2251:2475
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE11(j,k) = mum_temp_600_n(j,i-2250);
+	end
+		else
+	for j=1:4758
+	RESHAPE11(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE11 = permute(reshape(RESHAPE11,4758,15,15),[2 3 1]);
+
+k=1;
+for i=2476:2700
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE12(j,k) = mum_temp_850_n(j,i-2475);
+	end
+		else
+	for j=1:4758
+	RESHAPE12(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE12 = permute(reshape(RESHAPE12,4758,15,15),[2 3 1]);
+
+k=1;
+for i=2701:2925
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE13(j,k) = mum_temp_1000_n(j,i-2700);
+	end
+		else
+	for j=1:4758
+	RESHAPE13(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE13 = permute(reshape(RESHAPE13,4758,15,15),[2 3 1]);
+
+k=1;
+for i=2926:3150
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE14(j,k) = mum_uwind_400_n(j,i-2925);
+	end
+		else
+	for j=1:4758
+	RESHAPE14(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE14 = permute(reshape(RESHAPE14,4758,15,15),[2 3 1]);
+
+k=1;
+for i=3151:3375
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE15(j,k) = mum_uwind_600_n(j,i-3150);
+	end
+		else
+	for j=1:4758
+	RESHAPE15(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE15 = permute(reshape(RESHAPE15,4758,15,15),[2 3 1]);
+
+k=1;
+for i=3376:3600
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE16(j,k) = mum_uwind_850_n(j,i-3375);
+	end
+		else
+	for j=1:4758
+	RESHAPE16(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE16 = permute(reshape(RESHAPE16,4758,15,15),[2 3 1]);
+
+k=1;
+for i=3601:3825
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE17(j,k) = mum_uwind_1000_n(j,i-3600);
+	end
+		else
+	for j=1:4758
+	RESHAPE17(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE17 = permute(reshape(RESHAPE17,4758,15,15),[2 3 1]);
+
+k=1;
+for i=3826:4050
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE18(j,k) = mum_vwind_400_n(j,i-3825);
+	end
+		else
+	for j=1:4758
+	RESHAPE18(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE18 = permute(reshape(RESHAPE18,4758,15,15),[2 3 1]);
+
+k=1;
+for i=4051:4275
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE19(j,k) = mum_vwind_600_n(j,i-4050);
+	end
+		else
+	for j=1:4758
+	RESHAPE19(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE19 = permute(reshape(RESHAPE19,4758,15,15),[2 3 1]);
+
+k=1;
+for i=4276:4500
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE20(j,k) = mum_vwind_850_n(j,i-4275);
+	end
+		else
+	for j=1:4758
+	RESHAPE20(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE20 = permute(reshape(RESHAPE20,4758,15,15),[2 3 1]);
+
+k=1;
+for i=4501:4725
+if freqP(1,i)>40 | freqN(1,i)>40 
+	for j=1:4758
+	RESHAPE21(j,k) = mum_vwind_1000_n(j,i-4500);
+	end
+		else
+	for j=1:4758
+	RESHAPE21(j,k) = 0;
+	end
+end
+k=k+1;
+end
+RESHAPE21 = permute(reshape(RESHAPE21,4758,15,15),[2 3 1]);
+
+
+RESHAPE1 = permute(RESHAPE1,[2 1 3]);
+RESHAPE2 = permute(RESHAPE2,[2 1 3]);
+RESHAPE3 = permute(RESHAPE3,[2 1 3]);
+RESHAPE4 = permute(RESHAPE4,[2 1 3]);
+RESHAPE5 = permute(RESHAPE5,[2 1 3]);
+RESHAPE6 = permute(RESHAPE6,[2 1 3]);
+RESHAPE7 = permute(RESHAPE7,[2 1 3]);
+RESHAPE8 = permute(RESHAPE8,[2 1 3]);
+RESHAPE9 = permute(RESHAPE9,[2 1 3]);
+RESHAPE10 = permute(RESHAPE10,[2 1 3]);
+RESHAPE11 = permute(RESHAPE11,[2 1 3]);
+RESHAPE12 = permute(RESHAPE12,[2 1 3]);
+RESHAPE13 = permute(RESHAPE13,[2 1 3]);
+RESHAPE14 = permute(RESHAPE14,[2 1 3]);
+RESHAPE15 = permute(RESHAPE15,[2 1 3]);
+RESHAPE16 = permute(RESHAPE16,[2 1 3]);
+RESHAPE17 = permute(RESHAPE17,[2 1 3]);
+RESHAPE18 = permute(RESHAPE18,[2 1 3]);
+RESHAPE19 = permute(RESHAPE19,[2 1 3]);
+RESHAPE20 = permute(RESHAPE20,[2 1 3]);
+RESHAPE21 = permute(RESHAPE21,[2 1 3]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

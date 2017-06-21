@@ -1,0 +1,29 @@
+<--------------ROC CURVE--------->
+
+SVMmodel5 = fitPosterior(SVMmodel5);
+SVMmodel2 = fitPosterior(SVMmodel2);
+SVMmodel1 = fitPosterior(SVMmodel1);
+
+[~,score_svm] = resubPredict(SVMmodel5);
+[~,score_svm2] = resubPredict(SVMmodel2);
+[~,score_svm1] = resubPredict(SVMmodel1);
+
+for i=1:8932
+scoresvm(i,1) = score_svm(i,2);
+end
+for i=1:8932
+scoresvm2(i,1) = score_svm2(i,2);
+end
+for i=1:8932
+scoresvm1(i,1) = score_svm1(i,2);
+end
+
+[Xsvm,Ysvm] = perfcurve(Y_train,scoresvm,1);
+[Xsvm2,Ysvm2] = perfcurve(Y_train,scoresvm2,1);
+[Xsvm1,Ysvm1] = perfcurve(Y_train,scoresvm1,1);
+
+plot(Xsvm,Ysvm) 
+hold on;
+plot(Xsvm2,Ysvm2) 
+hold on;
+plot(Xsvm1,Ysvm1) 
